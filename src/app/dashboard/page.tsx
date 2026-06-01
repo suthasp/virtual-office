@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   AlertTriangle, Ticket, Zap, Gauge, Activity, Server,
@@ -18,6 +19,11 @@ import { getStatusColor, getStatusBg, cn } from "@/lib/utils";
 
 export default function DashboardPage() {
   const { kpis } = useAppStore();
+  const [currentTime, setCurrentTime] = useState("");
+
+  useEffect(() => {
+    setCurrentTime(new Date().toLocaleTimeString());
+  }, []);
 
   const kpiCards = [
     {
@@ -127,7 +133,7 @@ export default function DashboardPage() {
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1.5 text-xs text-gray-500">
               <RefreshCw className="w-3.5 h-3.5" />
-              Last updated: {new Date().toLocaleTimeString()}
+              Last updated: {currentTime}
             </div>
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
