@@ -12,10 +12,21 @@ export function TopBar() {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [user, setUser] = useState<SupabaseUser | null>(null);
+  const [profile, setProfile] = useState<{ full_name: string | null; role: string } | null>(null);
 
   useEffect(() => {
     import("@/lib/supabase/client").then(({ createClient }) => {
-      createClient().auth.getUser().then(({ data }) => setUser(data.user));
+      const supabase = createClient();
+      supabase.auth.getUser().then(({ data }) => {
+        if (!data.user) return;
+        setUser(data.user);
+        supabase
+          .from("profiles")
+          .select("full_name, role")
+          .eq("id", data.user.id)
+          .single()
+          .then(({ data: p }) => { if (p) setProfile(p); });
+      });
     });
   }, []);
 
@@ -115,8 +126,8 @@ export function TopBar() {
               <User className="w-3.5 h-3.5 text-white" />
             </div>
             <div className="hidden sm:block text-left">
-              <p className="text-xs font-medium text-white leading-tight">{user?.user_metadata?.full_name || user?.email?.split("@")[0] || "User"}</p>
-              <p className="text-xs text-gray-500">{user?.user_metadata?.role || "Viewer"}</p>
+              <p className="text-xs font-medium text-white leading-tight">{profile?.full_name || user?.email?.split("@")[0] || "User"}</p>
+              <p className="text-xs text-gray-500 capitalize">{profile?.role || "viewer"}</p>
             </div>
             <ChevronDown className="w-3.5 h-3.5 text-gray-500" />
           </button>
@@ -131,9 +142,9 @@ export function TopBar() {
                 className="absolute right-0 top-12 w-48 bg-gray-900 border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50"
               >
                 <div className="p-3 border-b border-white/10">
-                  <p className="text-sm font-medium text-white">{user?.user_metadata?.full_name || user?.email?.split("@")[0] || "User"}</p>
+                  <p className="text-sm font-medium text-white">{profile?.full_name || user?.email?.split("@")[0] || "User"}</p>
                   <p className="text-xs text-gray-500">{user?.email || ""}</p>
-                  <Badge variant="default" className="mt-1.5 text-xs">{user?.user_metadata?.role || "Viewer"}</Badge>
+                  <Badge variant="default" className="mt-1.5 text-xs capitalize">{profile?.role || "viewer"}</Badge>
                 </div>
                 <div className="p-1">
                   <button className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors">

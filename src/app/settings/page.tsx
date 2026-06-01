@@ -26,10 +26,21 @@ export default function SettingsPage() {
   const [activeSection, setActiveSection] = useState("profile");
   const [saved, setSaved] = useState(false);
   const [user, setUser] = useState<SupabaseUser | null>(null);
+  const [profile, setProfile] = useState<{ full_name: string | null; role: string; department: string | null } | null>(null);
 
   useEffect(() => {
     import("@/lib/supabase/client").then(({ createClient }) => {
-      createClient().auth.getUser().then(({ data }) => setUser(data.user));
+      const supabase = createClient();
+      supabase.auth.getUser().then(({ data }) => {
+        if (!data.user) return;
+        setUser(data.user);
+        supabase
+          .from("profiles")
+          .select("full_name, role, department")
+          .eq("id", data.user.id)
+          .single()
+          .then(({ data: p }) => { if (p) setProfile(p); });
+      });
     });
   }, []);
 
@@ -99,7 +110,7 @@ export default function SettingsPage() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
                         <label className="text-xs text-gray-400 block mb-1.5">Full Name</label>
-                        <Input defaultValue={user?.user_metadata?.full_name || user?.email?.split("@")[0] || ""} />
+                        <Input defaultValue={profile?.full_name || user?.email?.split("@")[0] || ""} key={profile?.full_name} />
                       </div>
                       <div>
                         <label className="text-xs text-gray-400 block mb-1.5">Email</label>
@@ -107,11 +118,11 @@ export default function SettingsPage() {
                       </div>
                       <div>
                         <label className="text-xs text-gray-400 block mb-1.5">Department</label>
-                        <Input defaultValue="Operations" />
+                        <Input defaultValue={profile?.department || ""} key={profile?.department} />
                       </div>
                       <div>
                         <label className="text-xs text-gray-400 block mb-1.5">Role</label>
-                        <Input defaultValue="Administrator" disabled />
+                        <Input defaultValue={profile?.role || "viewer"} disabled className="capitalize" />
                       </div>
                     </div>
                   </CardContent>
