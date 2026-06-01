@@ -39,7 +39,7 @@ export function Sidebar() {
     <motion.aside
       animate={{ width: sidebarOpen ? 240 : 64 }}
       transition={{ duration: 0.3, ease: "easeInOut" }}
-      className="relative flex flex-col h-screen bg-gray-950 border-r border-white/10 z-30 overflow-hidden"
+      className="group relative flex flex-col h-screen bg-gray-950 border-r border-white/10 z-30 overflow-hidden"
     >
       {/* Logo */}
       <div className="flex items-center h-16 px-4 border-b border-white/10 shrink-0">
@@ -133,12 +133,12 @@ export function Sidebar() {
       {/* Toggle Button */}
       <button
         onClick={() => setSidebarOpen(!sidebarOpen)}
-        className="absolute -right-3 top-20 w-6 h-6 rounded-full bg-gray-700 border border-white/20 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-600 transition-colors z-10"
+        className="absolute -right-3 top-20 w-6 h-6 rounded-full bg-gray-900 border border-white/10 flex items-center justify-center text-gray-500 opacity-0 hover:opacity-100 group-hover:opacity-100 hover:text-white hover:border-blue-500/50 hover:bg-blue-600/20 transition-all duration-200 z-10 shadow-lg"
       >
         {sidebarOpen ? (
-          <ChevronLeft className="w-3.5 h-3.5" />
+          <ChevronLeft className="w-3 h-3" />
         ) : (
-          <ChevronRight className="w-3.5 h-3.5" />
+          <ChevronRight className="w-3 h-3" />
         )}
       </button>
     </motion.aside>
