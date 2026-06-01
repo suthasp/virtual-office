@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import type { User as SupabaseUser } from "@supabase/supabase-js";
 import { motion } from "framer-motion";
 import {
   Settings, User, Bell, Shield, Database, Palette, Globe,
@@ -24,6 +25,13 @@ const sections = [
 export default function SettingsPage() {
   const [activeSection, setActiveSection] = useState("profile");
   const [saved, setSaved] = useState(false);
+  const [user, setUser] = useState<SupabaseUser | null>(null);
+
+  useEffect(() => {
+    import("@/lib/supabase/client").then(({ createClient }) => {
+      createClient().auth.getUser().then(({ data }) => setUser(data.user));
+    });
+  }, []);
 
   const handleSave = () => {
     setSaved(true);
@@ -91,11 +99,11 @@ export default function SettingsPage() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
                         <label className="text-xs text-gray-400 block mb-1.5">Full Name</label>
-                        <Input defaultValue="Admin User" />
+                        <Input defaultValue={user?.user_metadata?.full_name || user?.email?.split("@")[0] || ""} />
                       </div>
                       <div>
                         <label className="text-xs text-gray-400 block mb-1.5">Email</label>
-                        <Input defaultValue="admin@datacenter.com" type="email" />
+                        <Input defaultValue={user?.email || ""} type="email" disabled />
                       </div>
                       <div>
                         <label className="text-xs text-gray-400 block mb-1.5">Department</label>

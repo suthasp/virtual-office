@@ -1,15 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Bell, Search, User, LogOut, Settings, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAppStore } from "@/store";
 import { Badge } from "@/components/ui/badge";
+import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 export function TopBar() {
   const { kpis } = useAppStore();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [user, setUser] = useState<SupabaseUser | null>(null);
+
+  useEffect(() => {
+    import("@/lib/supabase/client").then(({ createClient }) => {
+      createClient().auth.getUser().then(({ data }) => setUser(data.user));
+    });
+  }, []);
 
   const notifications = [
     { id: 1, title: "Critical: UPS Failure Zone A", time: "2m ago", type: "critical" },
@@ -107,8 +115,8 @@ export function TopBar() {
               <User className="w-3.5 h-3.5 text-white" />
             </div>
             <div className="hidden sm:block text-left">
-              <p className="text-xs font-medium text-white leading-tight">Admin User</p>
-              <p className="text-xs text-gray-500">Administrator</p>
+              <p className="text-xs font-medium text-white leading-tight">{user?.user_metadata?.full_name || user?.email?.split("@")[0] || "User"}</p>
+              <p className="text-xs text-gray-500">{user?.user_metadata?.role || "Viewer"}</p>
             </div>
             <ChevronDown className="w-3.5 h-3.5 text-gray-500" />
           </button>
@@ -123,9 +131,9 @@ export function TopBar() {
                 className="absolute right-0 top-12 w-48 bg-gray-900 border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50"
               >
                 <div className="p-3 border-b border-white/10">
-                  <p className="text-sm font-medium text-white">Admin User</p>
-                  <p className="text-xs text-gray-500">admin@datacenter.com</p>
-                  <Badge variant="default" className="mt-1.5 text-xs">Administrator</Badge>
+                  <p className="text-sm font-medium text-white">{user?.user_metadata?.full_name || user?.email?.split("@")[0] || "User"}</p>
+                  <p className="text-xs text-gray-500">{user?.email || ""}</p>
+                  <Badge variant="default" className="mt-1.5 text-xs">{user?.user_metadata?.role || "Viewer"}</Badge>
                 </div>
                 <div className="p-1">
                   <button className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors">
