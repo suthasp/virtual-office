@@ -17,13 +17,14 @@ export default function LoginPage() {
     e.preventDefault();
     setIsLoading(true);
     setError("");
-    // Simulate login — replace with Supabase auth
-    await new Promise((r) => setTimeout(r, 1000));
-    if (email && password) {
-      window.location.href = "/dashboard";
-    } else {
-      setError("Please enter valid credentials");
+    const { createClient } = await import("@/lib/supabase/client");
+    const supabase = createClient();
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      setError(error.message);
       setIsLoading(false);
+    } else {
+      window.location.href = "/dashboard";
     }
   };
 

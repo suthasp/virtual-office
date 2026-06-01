@@ -133,7 +133,11 @@ export function TopBar() {
                     Settings
                   </button>
                   <button
-                    onClick={() => { window.location.href = "/auth/login"; }}
+                    onClick={async () => {
+                      const { createClient } = await import("@/lib/supabase/client");
+                      await createClient().auth.signOut();
+                      window.location.href = "/auth/login";
+                    }}
                     className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors"
                   >
                     <LogOut className="w-4 h-4" />
